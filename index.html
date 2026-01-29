@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retreat Wallpaper</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Arial; margin: 0; padding: 16px; max-width: 520px; }
+    .card { border: 1px solid #ddd; border-radius: 16px; padding: 14px; }
+    textarea { width: 100%; height: 90px; font-size: 16px; padding: 10px; border-radius: 12px; border: 1px solid #ccc; }
+    button { width: 100%; padding: 12px; font-size: 16px; border-radius: 12px; border: 0; margin-top: 10px; }
+    canvas { width: 100%; border-radius: 18px; margin-top: 12px; border: 1px solid #eee; }
+    .hint { font-size: 13px; opacity: 0.8; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>🌤️ Make Your Retreat Wallpaper</h2>
+
+  <div class="card">
+    <textarea id="text" maxlength="140" placeholder="Type your reflection (1–2 lines)…"></textarea>
+    <div class="hint">Tip: keep it short for best wallpaper look ✨</div>
+
+    <button id="gen">Generate Preview</button>
+    <button id="dl">Download Wallpaper</button>
+
+    <canvas id="c" width="1080" height="1920"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+    const textEl = document.getElementById("text");
+
+    const bg = new Image();
+    bg.src = "bg.png"; // put your background image in same folder
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(/\s+/);
+      let line = "";
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const w = ctx.measureText(testLine).width;
+        if (w > maxWidth && n > 0) {
+          ctx.fillText(line.trim(), x, y);
+          line = words[n] + " ";
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line.trim(), x, y);
+      return y;
+    }
+
+    function draw() {
+      // background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+      // soft overlay to keep text readable (optional)
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
+      ctx.fillRect(80, 640, 920, 520);
+
+      // text
+      const t = (textEl.value || "").trim();
+      ctx.fillStyle = "#1b1b1b";
+      ctx.textAlign = "center";
+      ctx.font = "60px system-ui";
+
+      const maxWidth = 840;
+      const startY = 820;
+      const lineHeight = 78;
+
+      // Wrap text centered: draw line-by-line
+      // We wrap using left alignment but x centered; easiest is to measure with center by drawing each line centered.
+      // Here’s a simple approach: wrap with left and then re-draw centered per line
+      // Quick wrap: we’ll split into lines ourselves
+      const words = t.split(/\s+/);
+      const lines = [];
+      let current = "";
+      for (const w of words) {
+        const test = (current + " " + w).trim();
+        if (ctx.measureText(test).width > maxWidth && current) {
+          lines.push(current);
+          current = w;
+        } else {
+          current = test;
+        }
+      }
+      if (current) lines.push(current);
+
+      let y = startY;
+      for (const line of lines.slice(0, 5)) { // cap lines
+        ctx.fillText(line, canvas.width / 2, y);
+        y += lineHeight;
+      }
+
+      // footer
+      ctx.font = "34px system-ui";
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillText("Broadcast Ministry Retreat 2026", canvas.width / 2, 1760);
+    }
+
+    bg.onload = draw;
+
+    document.getElementById("gen").onclick = draw;
+
+    document.getElementById("dl").onclick = () => {
+      draw();
+      const a = document.createElement("a");
+      a.download = "retreat-wallpaper.png";
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    };
+  </script>
+</body>
+</html>
