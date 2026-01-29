@@ -4,21 +4,68 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Retreat Wallpaper</title>
+
   <style>
-    body { font-family: system-ui, -apple-system, Arial; margin: 0; padding: 16px; max-width: 520px; }
-    .card { border: 1px solid #ddd; border-radius: 16px; padding: 14px; }
-    textarea { width: 100%; height: 90px; font-size: 16px; padding: 10px; border-radius: 12px; border: 1px solid #ccc; }
-    button { width: 100%; padding: 12px; font-size: 16px; border-radius: 12px; border: 0; margin-top: 10px; }
-    canvas { width: 100%; border-radius: 18px; margin-top: 12px; border: 1px solid #eee; }
-    .hint { font-size: 13px; opacity: 0.8; margin-top: 8px; }
+    body {
+      font-family: system-ui, -apple-system, Arial;
+      margin: 0;
+      padding: 16px;
+      max-width: 520px;
+    }
+    h2 { margin-bottom: 8px; }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    textarea, input {
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      margin-bottom: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 0;
+      margin-top: 6px;
+    }
+
+    canvas {
+      width: 100%;
+      border-radius: 18px;
+      margin-top: 14px;
+      border: 1px solid #eee;
+    }
+
+    .hint {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
+
 <body>
-  <h2>🌤️ Make Your Retreat Wallpaper</h2>
+  <h2>🌤️ Create Your Retreat Wallpaper</h2>
 
   <div class="card">
-    <textarea id="text" maxlength="140" placeholder="Type your reflection (1–2 lines)…"></textarea>
-    <div class="hint">Tip: keep it short for best wallpaper look ✨</div>
+    <input id="line1" maxlength="40" placeholder="A word or phrase (e.g. Joy, Trust, Stillness)" />
+
+    <textarea id="line2" maxlength="120"
+      placeholder="A short sentence God is placing on your heart…"></textarea>
+
+    <textarea id="line3" maxlength="120"
+      placeholder="A prayer or intention you want to carry forward…"></textarea>
+
+    <div class="hint">Tip: shorter lines look best on a wallpaper ✨</div>
 
     <button id="gen">Generate Preview</button>
     <button id="dl">Download Wallpaper</button>
@@ -29,71 +76,66 @@
   <script>
     const canvas = document.getElementById("c");
     const ctx = canvas.getContext("2d");
-    const textEl = document.getElementById("text");
+
+    const l1 = document.getElementById("line1");
+    const l2 = document.getElementById("line2");
+    const l3 = document.getElementById("line3");
 
     const bg = new Image();
-    bg.src = "bg.png"; // put your background image in same folder
+    bg.src = "bg.png"; // background image
 
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    function drawCenteredText(text, y, fontSize, weight = "400") {
+      if (!text) return;
+      ctx.font = `${weight} ${fontSize}px system-ui`;
+      ctx.fillText(text, canvas.width / 2, y);
+    }
+
+    function wrapCenteredText(text, startY, fontSize, lineHeight, maxWidth) {
+      if (!text) return startY;
+
+      ctx.font = `${fontSize}px system-ui`;
       const words = text.split(/\s+/);
       let line = "";
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + " ";
+      let y = startY;
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + " ";
         const w = ctx.measureText(testLine).width;
-        if (w > maxWidth && n > 0) {
-          ctx.fillText(line.trim(), x, y);
-          line = words[n] + " ";
+        if (w > maxWidth && line) {
+          ctx.fillText(line.trim(), canvas.width / 2, y);
+          line = words[i] + " ";
           y += lineHeight;
         } else {
           line = testLine;
         }
       }
-      ctx.fillText(line.trim(), x, y);
-      return y;
+      ctx.fillText(line.trim(), canvas.width / 2, y);
+      return y + lineHeight;
     }
 
     function draw() {
-      // background
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-      // soft overlay to keep text readable (optional)
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.fillRect(80, 640, 920, 520);
+      // soft overlay for readability
+      ctx.fillStyle = "rgba(255,255,255,0.28)";
+      ctx.fillRect(80, 620, 920, 620);
 
-      // text
-      const t = (textEl.value || "").trim();
-      ctx.fillStyle = "#1b1b1b";
       ctx.textAlign = "center";
-      ctx.font = "60px system-ui";
+      ctx.fillStyle = "#1b1b1b";
 
-      const maxWidth = 840;
-      const startY = 820;
-      const lineHeight = 78;
+      let y = 760;
 
-      // Wrap text centered: draw line-by-line
-      // We wrap using left alignment but x centered; easiest is to measure with center by drawing each line centered.
-      // Here’s a simple approach: wrap with left and then re-draw centered per line
-      // Quick wrap: we’ll split into lines ourselves
-      const words = t.split(/\s+/);
-      const lines = [];
-      let current = "";
-      for (const w of words) {
-        const test = (current + " " + w).trim();
-        if (ctx.measureText(test).width > maxWidth && current) {
-          lines.push(current);
-          current = w;
-        } else {
-          current = test;
-        }
-      }
-      if (current) lines.push(current);
+      // Line 1: key word / phrase
+      drawCenteredText(l1.value.trim(), y, 72, "600");
+      y += 110;
 
-      let y = startY;
-      for (const line of lines.slice(0, 5)) { // cap lines
-        ctx.fillText(line, canvas.width / 2, y);
-        y += lineHeight;
-      }
+      // Line 2: sentence
+      y = wrapCenteredText(l2.value.trim(), y, 56, 72, 820);
+      y += 40;
+
+      // Line 3: prayer / intention
+      wrapCenteredText(l3.value.trim(), y, 52, 68, 820);
 
       // footer
       ctx.font = "34px system-ui";
@@ -102,7 +144,6 @@
     }
 
     bg.onload = draw;
-
     document.getElementById("gen").onclick = draw;
 
     document.getElementById("dl").onclick = () => {
