@@ -28,9 +28,9 @@
   <h2>🌤️ Create Your Retreat Wallpaper</h2>
 
   <div class="card">
-    <input id="field1" maxlength="40" placeholder="Field 1 (e.g. One word)" />
-    <textarea id="field2" maxlength="120" placeholder="Field 2 (e.g. A short sentence)…"></textarea>
-    <textarea id="field3" maxlength="120" placeholder="Field 3 (e.g. A prayer / intention)…"></textarea>
+    <input id="field1" maxlength="140" placeholder="One word to describe 2026" />
+    <textarea id="field2" maxlength="120" placeholder="What are you expecting from this retreat?"></textarea>
+    <textarea id="field3" maxlength="120" placeholder="What does MUCH MORE means to you?"></textarea>
 
     <div class="hint">Tip: shorter lines look best ✨</div>
 
@@ -150,7 +150,7 @@
       // 3 separate boxes
       drawBox({
         x, y: 1000, w, h: 200, radius,
-        title: "ONE WORD",
+        title: "ONE WORD ABOUT MY 2026",
         text: f1.value,
         titleSize: 28,
         textSize: 52
@@ -158,7 +158,7 @@
 
       drawBox({
         x, y: 1250, w, h: 200, radius,
-        title: "WHAT I’M LEARNING",
+        title: "I AM EXPECTING FROM THIS RETREAT",
         text: f2.value,
         titleSize: 28,
         textSize: 52
@@ -166,7 +166,7 @@
 
       drawBox({
         x, y: 1500, w, h: 200, radius,
-        title: "MY PRAYER",
+        title: "WHAT DOES MUCH MORE MEANS TO ME",
         text: f3.value,
         titleSize: 28,
         textSize: 52
